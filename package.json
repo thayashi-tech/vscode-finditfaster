@@ -36,7 +36,10 @@
     "onCommand:find-it-faster.findFilesWithType",
     "onCommand:find-it-faster.findWithinFiles",
     "onCommand:find-it-faster.findWithinFilesWithType",
-    "onCommand:find-it-faster.listSearchLocations"
+    "onCommand:find-it-faster.listSearchLocations",
+    "onCommand:find-it-faster.gtagsDefs",
+    "onCommand:find-it-faster.gtagsDefAlls",
+    "onCommand:find-it-faster.gtagsRefs"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -64,6 +67,18 @@
       {
         "command": "find-it-faster.resumeSearch",
         "title": "Find It Faster: resume last search"
+      },
+      {
+        "command": "find-it-faster.gtagsDefs",
+        "title": "Find It Faster: jump to symbol defined location by gnu global"
+      },
+      {
+        "command":"find-it-faster.gtagsDefAlls",
+        "title": "Find It Faster: jump to symobl referenced location by gnu global"
+      },
+      {
+        "command":"find-it-faster.gtagsRefs",
+        "title": "Find It Faster: jump to symobl referenced location by gnu global"
       }
     ],
     "keybindings": [

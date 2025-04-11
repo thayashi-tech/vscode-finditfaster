@@ -75,6 +75,24 @@ const commands: { [key: string]: Command } = {
         preRunCallback: undefined,
         postRunCallback: undefined,
     },
+    gtagsDefs: {
+        script: 'find_gtags_defs',
+        uri: undefined,
+        preRunCallback: undefined,
+        postRunCallback: undefined
+    },
+    gtagsDefAlls: {
+        script: 'find_gtags_defAlls',
+        uri: undefined,
+        preRunCallback: undefined,
+        postRunCallback: undefined
+    },
+    gtagsRefs: {
+        script: 'find_gtags_refs',
+        uri: undefined,
+        preRunCallback: undefined,
+        postRunCallback: undefined
+    }
 };
 
 type WhenCondition = 'always' | 'never' | 'noWorkspaceOnly';
@@ -263,12 +281,11 @@ function setupConfig(context: vscode.ExtensionContext) {
     CFG.extensionName = PACKAGE.name;
     assert(CFG.extensionName);
     const localScript = (x: string) => vscode.Uri.file(path.join(context.extensionPath, x) + (os.platform() === 'win32' ? '.ps1' : '.sh'));
-    commands.findFiles.uri = localScript(commands.findFiles.script);
-    commands.findFilesWithType.uri = localScript(commands.findFiles.script);
-    commands.findWithinFiles.uri = localScript(commands.findWithinFiles.script);
-    commands.findWithinFilesWithType.uri = localScript(commands.findWithinFiles.script);
-    commands.listSearchLocations.uri = localScript(commands.listSearchLocations.script);
-    commands.flightCheck.uri = localScript(commands.flightCheck.script);
+    Object.keys(commands).forEach((key) => {
+        if (key !== 'resumeSearch') {
+            commands[key].uri = localScript(commands[key].script);
+        }
+    });
 }
 
 /** Register the commands we defined with VS Code so users have access to them */
@@ -754,8 +771,15 @@ function getCommandString(cmd: Command, withArgs: boolean = true, withTextSelect
     }
     ret += cmdPath;
     if (withArgs) {
-        let paths = getWorkspaceFoldersAsString();
-        ret += ` ${paths}`;
+        if (cmd.script.startsWith('find_gtags_')) {
+            if (cmd.script !== 'find_gtags_defAlls') {
+                // script /path/to/ word
+                ret += ` ${path.dirname(getCurrentFilePath())} ${getWordAtCursor()}`
+            }
+        } else {
+            let paths = getWorkspaceFoldersAsString();
+            ret += ` ${paths}`;
+        }
     }
     return ret;
 }
@@ -833,4 +857,23 @@ function envVarToString(name: string, value: string) {
     return (os.platform() === 'win32')
         ? `$Env:${name}=${value}; `
         : `${name}=${value} `;
+}
+function getCurrentFilePath() {
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+        const document = editor.document;
+        return document.fileName;
+    }
+    return "";
+}
+function getWordAtCursor() {
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+        const document = editor.document;
+        const position = editor.selection.active;
+        const range = document.getWordRangeAtPosition(position);
+        const word = range ? document.getText(range) : undefined;   
+        return word;
+    }
+    return "";
 }
