@@ -15,8 +15,8 @@ CANARY_FILE=${CANARY_FILE:-'/tmp/canaryFile'}
 QUERY=''
 
 # move to directory location which inclue current file path.
-DIR_PATH="$1"
-SYMBOL="$2"
+SYMBOL="$1"
+DIR_PATH="$2"
 OPTIONS="$3"
 
 cd ${DIR_PATH}
@@ -44,20 +44,11 @@ callfzf () {
 }
 
 VAL=$(callfzf)
-TOKENS=
 
 if [[ -z "$VAL" ]]; then
     echo canceled
     echo "1" > "$CANARY_FILE"
     exit 1
 else
-    read -ra TOKENS <<< "$VAL"
-    if [[ -n "$SINGLE_DIR_ROOT" ]]; then
-        TMP=$(mktemp)
-        echo "$VAL" > "$TMP"
-        sed "s|^|$SINGLE_DIR_ROOT/|" "$TMP" > "$CANARY_FILE"
-        rm "$TMP"
-    else
-        echo "$VAL" > "$CANARY_FILE"
-    fi
+    echo "$VAL" > "$CANARY_FILE"
 fi

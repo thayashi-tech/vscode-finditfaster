@@ -774,7 +774,7 @@ function getCommandString(cmd: Command, withArgs: boolean = true, withTextSelect
         if (cmd.script.startsWith('find_gtags_')) {
             if (cmd.script !== 'find_gtags_defAlls') {
                 // script /path/to/ word
-                ret += ` ${path.dirname(getCurrentFilePath())} ${getWordAtCursor()}`
+                ret += ` ${getWordAtCursor()} ${path.dirname(getCurrentFilePath())} `
             }
         } else {
             let paths = getWorkspaceFoldersAsString();

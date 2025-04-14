@@ -42,8 +42,8 @@ if ( (VGet "env:USE_GITIGNORE" 0) -eq 0) {
 $TYPE_FILTER_ARR=VOptGet "env:TYPE_FILTER" "--type"
 $GLOBS=VOptGet "env:GLOBS" "--glob"
 
-$PATH    = $args[0]
-$SYMBOL  = $args[1]
+$SYMBOL  = $args[0]
+$PATH    = $args[1]
 $OPTIONS = $args[2]
 
 # move to directory location which inclue current file path.
@@ -81,9 +81,5 @@ if ("$result".Length -lt 1) {
     "1" | Out-File -FilePath "$Env:CANARY_FILE" -Encoding UTF8
     exit 1
 } else {
-    if ("$SINGLE_DIR_ROOT".Length -gt 0) {
-       Join-Path -Path "$SINGLE_DIR_ROOT" -ChildPath "$result" | Out-File -FilePath "$Env:CANARY_FILE" -Encoding UTF8
-    } else {
-        $result | Out-File -FilePath "$Env:CANARY_FILE" -Encoding UTF8        
-    }
+    $result | Out-File -FilePath "$Env:CANARY_FILE" -Encoding UTF8        
 }
