@@ -49,8 +49,10 @@ $OPTIONS = $args[2]
 # move to directory location which inclue current file path.
 Push-Location "$PATH"
 
+$bat = Join-Path $PSScriptRoot "grep_bat.ps1"
+$bat = "powershell -File $bat"
 $PREVIEW_ENABLED=VGet "env:FIND_FILES_PREVIEW_ENABLED" 0
-$PREVIEW_COMMAND=VGet "env:FIND_FILES_PREVIEW_COMMAND"  'bat --decorations=always --color=always {}'
+$PREVIEW_COMMAND=VGet "env:FIND_FILES_PREVIEW_COMMAND"  "$bat --decorations=always --color=always {}"
 $PREVIEW_WINDOW=VGet "env:FIND_FILES_PREVIEW_WINDOW_CONFIG" 'right:50%:border-left'
 $HAS_SELECTION=VGet "env:HAS_SELECTION" 0
 $SELECTION_FILE=VGet "env:SELECTION_FILE" ""
@@ -70,24 +72,9 @@ if ( $PREVIEW_ENABLED -eq 1){
     $fzf_command+=" --preview '$PREVIEW_COMMAND' --preview-window $PREVIEW_WINDOW"
 } 
 
-$expression = "global ${OPTIONS} ${SYMBOL} | " + $fzf_command
+$expression = "global ${OPTIONS} ${SYMBOL} --result=grep --abs | % { (`$_ -split '\s+')[0] } |" + $fzf_command
 $result = Invoke-Expression( $expression )
 
-# --- GNU Global Output format ---
-# SYMBOL LINENO PATH CODE
-#
-# --- find-it-faster openFile format ---
-# FILE:LINENO:CHARNO
-$tokens = $result -split '\s+'
-
-$symbol = $tokens[0]
-$lineno = $tokens[1]
-$file   = $tokens[2]
-
-$file = [System.IO.path]::Combine($PATH, $file)
-$file = [System.IO.path]::GetFullPath($file)
-
-$result = "${file}:${lineno}:1"
 # Output is filename, line number, character, contents
 if ("$result".Length -lt 1) {
     Write-Host canceled

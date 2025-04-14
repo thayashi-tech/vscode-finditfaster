@@ -3,8 +3,11 @@ set -uo pipefail  # No -e to support write to canary file after cancel
 
 . "$EXTENSION_PATH/shared.sh"
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+BAT="sh ${SCRIPT_DIR}/grep_bat.sh"
+
 PREVIEW_ENABLED=${FIND_FILES_PREVIEW_ENABLED:-1}
-PREVIEW_COMMAND=${FIND_FILES_PREVIEW_COMMAND:-'bat --decorations=always --color=always --plain {}'}
+PREVIEW_COMMAND=${FIND_FILES_PREVIEW_COMMAND:-"$BAT --decorations=always --color=always --plain {}"}
 PREVIEW_WINDOW=${FIND_FILES_PREVIEW_WINDOW_CONFIG:-'right:50%:border-left'}
 HAS_SELECTION=${HAS_SELECTION:-}
 RESUME_SEARCH=${RESUME_SEARCH:-}
@@ -29,8 +32,9 @@ if [[ "$PREVIEW_ENABLED" -eq 1 ]]; then
 fi
 
 callfzf () {
-    global ${OPTIONS} ${SYMBOL} \
+    global ${OPTIONS} ${SYMBOL} --result=grep --abs \
         2> /dev/null \
+    |cut -d: -f1,2
     | fzf \
         --cycle \
         --multi \
@@ -41,11 +45,6 @@ callfzf () {
 
 VAL=$(callfzf)
 TOKENS=
-# --- GNU Global Output format ---
-# SYMBOL LINENO PATH CODE
-#
-# --- find-it-faster openFile format ---
-# FILE:LINENO:CHARNO
 
 if [[ -z "$VAL" ]]; then
     echo canceled
@@ -53,8 +52,6 @@ if [[ -z "$VAL" ]]; then
     exit 1
 else
     read -ra TOKENS <<< "$VAL"
-    FILEPATH=`realpath "${DIR_PATH}/${TOKENS[2]}"`
-    VAL="${FILEPATH}:${TOKENS[1]}:1"
     if [[ -n "$SINGLE_DIR_ROOT" ]]; then
         TMP=$(mktemp)
         echo "$VAL" > "$TMP"
