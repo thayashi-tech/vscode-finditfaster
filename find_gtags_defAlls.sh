@@ -17,5 +17,5 @@ if [[ -z "$SYMBOL" ]]; then
     exit 1
 else
     # search symbol location
-    sh ${SCRIPT} ${SYMBOL} "$@" -x
+    sh ${SCRIPT} ${SYMBOL} "$@"
 fi
